@@ -1,0 +1,125 @@
+
+'stock_stats iterates through worksheets of stock data and inserts a table of statistics'
+'in each worksheet, to the right of the stock data '
+
+Sub stock_stats()
+
+'var that holds the total number of worksheets in the excel file'
+Dim ws_count As Integer
+'var that holds the worksheet number of the worksheet where data is currently being pulled'
+Dim current_sheet As Integer
+'var that counts how many rows have been created in a statistics table'
+Dim stats_row As Long
+'var that holds the row number of the last non-blank cell in a worksheet'
+Dim lRow As Long
+'var for iterating through data rows'
+Dim I As Long
+'var that sums up the annual trading volume for a stock'
+Dim volume As Double
+'var that holds a stock's opening price for the year'
+Dim opening As Double
+'var that is True when the script is at the beginning of a new stock'
+Dim first_row As Boolean
+
+'set equal to number of worksheets in workbook'
+ws_count = ActiveWorkbook.Worksheets.Count
+
+
+'Loop through all worksheets'
+For current_sheet = 1 To ws_count
+    
+    'select current worksheet'
+    Sheets(ActiveWorkbook.Worksheets(current_sheet).Name).Select
+
+    'add column names to table'
+    Cells(1, 9).Value = "Ticker"
+    Cells(1, 10).Value = "Yearly Change"
+    Cells(1, 11).Value = "Percent Change"
+    Cells(1, 12).Value = "Total Stock Volume"
+    
+    'Format Percentage Change column to show a percentage'
+    Columns("K:K").Select
+    Selection.NumberFormat = "0.00%"
+    
+    'reset variables for each iteration'
+    volume = 0
+    stats_row = 2
+    opening = 0
+    first_row = True
+    
+    'assign total number of rows in data table to lRow'
+    lRow = Cells(Rows.Count, 1).End(xlUp).Row
+    
+    'Loop through each row containing data in worksheet'
+    For I = 2 To lRow
+        'first_row is True when I is the first row of a stock'
+        If first_row Then
+            'captures opening stock price for the year'
+            opening = Cells(I, 3).Value
+            first_row = False
+            
+        End If
+        
+        'sums the volusmme of stock trading for each stock'
+        volume = volume + Cells(I, 7).Value
+        
+        'This if statement's condition is met when the script reaches a new stock'
+        If Cells(I, 1).Value <> Cells(I + 1, 1).Value Then
+            'if the opening sales price of a stock is equal to zero then...'
+            If opening = 0 Then
+                
+                'insert closing price for change in stock price'
+                Cells(stats_row, 10).Value = Cells(I, 6).Value
+                'insert NA for change percentage change in stock price"
+                Cells(stats_row, 11).Value = "NA"
+                'insert ticker symbol'
+                Cells(stats_row, 9).Value = Cells(I, 1).Value
+                'insert stock trading volume'
+                Cells(stats_row, 12).Value = volume
+                
+                'increase by 1 the number of rows populated in stats table'
+                stats_row = stats_row + 1
+                
+                'Reset variables'
+                volume = 0
+                first_row = True
+                
+            'otherwise the various columns of the statistic table are populated according to the
+            'else statement '
+            
+            Else
+                            
+                'if the stock appreciated, color background of yearly change cell green'
+                'if the stock depreciated, color background of yearly change cell red'
+                If (Cells(I, 6).Value - opening) > 0 Then
+                    Cells(stats_row, 10).Interior.ColorIndex = 4
+                Else
+                    Cells(stats_row, 10).Interior.ColorIndex = 3
+                End If
+                'insert annual change in stock price into stats table'
+                Cells(stats_row, 10).Value = Cells(I, 6).Value - opening
+                'insert percentage change in stock price into stats table'
+                Cells(stats_row, 11).Value = (Cells(I, 6).Value / opening) - 1
+                'insert ticker symbol into stats table'
+                Cells(stats_row, 9).Value = Cells(I, 1).Value
+                'insert stock trading volume into stats table'
+                Cells(stats_row, 12).Value = volume
+                
+                'increase by 1 the number of rows populated in stats table'
+                stats_row = stats_row + 1
+                
+                'Reset variables'
+                volume = 0
+                first_row = True
+                    
+            End If
+        End If
+        
+    Next I
+Next current_sheet
+
+
+End Sub
+
+
+
