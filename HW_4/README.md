@@ -1,6 +1,17 @@
 
 Pymoli Analysis 
 
+Observable Trend 1:
+-Younger players make more and more purchases as they enter their early-twenties. As age increases, after their
+ early twenties, players make fewer and fewer purchases.
+
+Observable Trend 2: 
+-Male users account for 81% of all sales.
+
+Observable Trend 3:
+-The most profitable items have price at about $4 while the most popular items are priced at about $2.
+
+
 
 ```python
 import pandas as pd 
@@ -516,7 +527,7 @@ countdf.columns = ['Purchase Count']
 merge1 = pd.merge(Top5, price_name ,left_index=True, right_index=True)
 answer = pd.merge(merge1, countdf, left_index=True, right_index=True)
 answer = answer[['Item Name', 'Purchase Count', 'Price', 'Total Purchase Value']]
-answer
+answer 
 
 ```
 
